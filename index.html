@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070707">
+<title>Narandar MahaRaja</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root { --gold:#d4af37; --red:#b3001b; --black:#070707; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body { height:100%; background:var(--black); overflow:hidden; }
+  body {
+    color:#eee;
+    font-family:'Special Elite', monospace;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(179,0,27,.3), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.14), transparent 60%),
+      var(--black);
+  }
+
+  /* film grain + vignette */
+  body::before {
+    content:""; position:fixed; inset:-50%; z-index:30; pointer-events:none; opacity:.08;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>");
+    animation:grain 1s steps(6) infinite;
+  }
+  body::after {
+    content:""; position:fixed; inset:0; z-index:29; pointer-events:none;
+    background:radial-gradient(circle, transparent 55%, rgba(0,0,0,.85) 100%);
+  }
+  @keyframes grain {
+    0%{transform:translate(0,0)} 20%{transform:translate(-3%,2%)} 40%{transform:translate(2%,-3%)}
+    60%{transform:translate(-2%,3%)} 80%{transform:translate(3%,1%)} 100%{transform:translate(0,0)}
+  }
+
+  /* ---------- INTRO ---------- */
+  #intro {
+    position:fixed; inset:0; z-index:10;
+    height:100dvh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px;
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  #intro.hide { opacity:0; transform:scale(1.1); pointer-events:none; }
+
+  .tag { letter-spacing:.4em; color:var(--gold); font-size:.75rem; margin-bottom:1rem; opacity:.85; }
+  h1 {
+    font-family:'Bebas Neue', sans-serif;
+    font-size:clamp(4rem, 22vw, 9rem);
+    line-height:.9; letter-spacing:.06em; color:#f2f2f2;
+    text-shadow:0 0 20px rgba(179,0,27,.7), 4px 4px 0 var(--red);
+    animation:flicker 4s infinite;
+  }
+  h1 span { color:var(--gold); text-shadow:0 0 25px rgba(212,175,55,.6); }
+  @keyframes flicker { 0%,18%,22%,62%,64%,100%{opacity:1} 20%,63%{opacity:.5} }
+  .line { width:120px; height:3px; margin:1.6rem auto; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+  .sub { color:#999; margin-bottom:2.2rem; }
+
+  .btn {
+    font-family:'Bebas Neue', sans-serif; font-size:1.8rem; letter-spacing:.3em;
+    padding:.8rem 3rem; color:var(--gold); background:transparent;
+    border:2px solid var(--gold); cursor:pointer; position:relative; overflow:hidden; z-index:0;
+    box-shadow:0 0 15px rgba(212,175,55,.3), inset 0 0 15px rgba(212,175,55,.1);
+    transition:color .3s, transform .2s, box-shadow .3s;
+  }
+  .btn::before {
+    content:""; position:absolute; inset:0; background:var(--gold); z-index:-1;
+    transform:translateX(-101%); transition:transform .35s ease;
+  }
+  .btn:hover, .btn:active { color:#000; transform:scale(1.05); box-shadow:0 0 30px rgba(212,175,55,.7); }
+  .btn:hover::before, .btn:active::before { transform:translateX(0); }
+
+  /* ---------- FULL-PAGE PORTRAIT PLAYER ---------- */
+  #player {
+    position:fixed; inset:0; z-index:20;
+    width:100vw; height:100dvh;
+    background:#000;
+    display:none; opacity:0; transition:opacity .8s ease;
+  }
+  #player.show { display:block; opacity:1; }
+
+  video {
+    width:100%; height:100%;
+    object-fit:cover;          /* fills the whole phone screen */
+    display:block; background:#000;
+  }
+
+  .ui {
+    position:absolute; left:0; right:0; z-index:5;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:calc(env(safe-area-inset-top) + 14px) 16px 14px;
+    top:0; background:linear-gradient(rgba(0,0,0,.7), transparent);
+    transition:opacity .4s;
+  }
+  .ui button {
+    font-family:'Bebas Neue', sans-serif; letter-spacing:.2em; font-size:1.1rem;
+    color:var(--gold); background:rgba(0,0,0,.55);
+    border:1px solid var(--gold); padding:.4rem .9rem; cursor:pointer;
+  }
+  .hidden-ui { opacity:0; pointer-events:none; }
+
+  .playicon {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:4.5rem; color:var(--gold); text-shadow:0 0 25px var(--red);
+    opacity:0; pointer-events:none; transition:opacity .3s; z-index:4;
+  }
+  .playicon.show { opacity:1; }
+</style>
+</head>
+<body>
+
+  <!-- Intro -->
+  <section id="intro">
+    <p class="tag">— NO MERCY • NO RULES —</p>
+    <h1>Narandar <span>MahaRaja</span></h1>
+    <div class="line"></div>
+    <p class="sub">Click Here To View Trailer.</p>
+    <button class="btn" id="startBtn">START</button>
+  </section>
+
+  <!-- Full page portrait video -->
+  <section id="player">
+    <!-- 👇 Replace "video.mp4" with your portrait video file or URL -->
+    <video id="vid" playsinline webkit-playsinline loop preload="auto">
+      <source src="Naran.mp4" type="video/mp4">
+    </video>
+
+    <div class="ui" id="ui">
+      <button id="backBtn">‹ BACK</button>
+      <button id="muteBtn">🔊</button>
+    </div>
+    <div class="playicon" id="icon">❚❚</div>
+  </section>
+
+<script>
+  const intro  = document.getElementById('intro');
+  const player = document.getElementById('player');
+  const vid    = document.getElementById('vid');
+  const ui     = document.getElementById('ui');
+  const icon   = document.getElementById('icon');
+  let uiTimer;
+
+  function showUI() {
+    ui.classList.remove('hidden-ui');
+    clearTimeout(uiTimer);
+    uiTimer = setTimeout(() => !vid.paused && ui.classList.add('hidden-ui'), 2500);
+  }
+
+  async function goFullscreen() {
+    try {
+      if (player.requestFullscreen) await player.requestFullscreen({ navigationUI: 'hide' });
+      else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(()=>{});
+    } catch (e) {}
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    goFullscreen();                         // must run inside the click
+    intro.classList.add('hide');
+    player.classList.add('show');
+    vid.muted = false;
+    vid.play().catch(() => { vid.muted = true; vid.play(); });
+    showUI();
+  });
+
+  // tap video = play / pause
+  vid.addEventListener('click', () => {
+    if (vid.paused) { vid.play(); icon.classList.remove('show'); }
+    else { vid.pause(); icon.classList.add('show'); }
+    showUI();
+  });
+
+  document.getElementById('muteBtn').addEventListener('click', e => {
+    vid.muted = !vid.muted;
+    e.target.textContent = vid.muted ? '🔇' : '🔊';
+    showUI();
+  });
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    vid.pause(); vid.currentTime = 0; icon.classList.remove('show');
+    if (document.fullscreenElement) document.exitFullscreen();
+    player.classList.remove('show');
+    intro.classList.remove('hide');
+  });
+</script>
+</body>
+</html>
